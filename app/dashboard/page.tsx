@@ -73,10 +73,9 @@ export default function DashboardPage() {
   useEffect(() => { loadDecks(); }, [loadDecks]);
 
   const handleDelete = async (deckId: string, title: string) => {
-    if (!confirm(`Delete "${title}"?`)) return;
     setDeletingId(deckId);
     const res = await fetch(`/api/decks?id=${deckId}&session_id=${sessionId}`, { method: 'DELETE' });
-    if (res.ok) { setDecks((p) => p.filter((d) => d.id !== deckId)); toast.success('Deck deleted'); }
+    if (res.ok) { setDecks((p) => p.filter((d) => d.id !== deckId)); toast.success(`"${title}" deleted`); }
     else toast.error('Failed to delete deck');
     setDeletingId(null);
   };
@@ -192,14 +191,23 @@ export default function DashboardPage() {
                             {deck.card_count} cards{deck.pdf_name ? ` · ${deck.pdf_name}` : ''}
                           </p>
                         </div>
-                        <button onClick={() => handleDelete(deck.id, deck.title)} disabled={deletingId === deck.id}
-                          className="group"
-                          style={{ flexShrink: 0, padding: '6px', borderRadius: 10, background: 'none', border: 'none', cursor: 'pointer', color: '#9090aa', opacity: 0, transition: 'all 0.2s' }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background='rgba(225,29,72,0.09)'; (e.currentTarget as HTMLElement).style.color='#e11d48'; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background='none'; (e.currentTarget as HTMLElement).style.color='#9090aa'; }}
-                          onFocus={(e) => { (e.currentTarget as HTMLElement).style.opacity='1'; }}
-                          title="Delete deck">
-                          <Trash2 size={15} />
+                        <button
+                          onClick={() => handleDelete(deck.id, deck.title)}
+                          disabled={deletingId === deck.id}
+                          title="Delete deck"
+                          style={{
+                            flexShrink: 0, width: 32, height: 32,
+                            borderRadius: 10, border: '1px solid rgba(225,29,72,0.18)',
+                            background: 'rgba(225,29,72,0.07)', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#e11d48', transition: 'all 0.18s',
+                            opacity: deletingId === deck.id ? 0.5 : 1,
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(225,29,72,0.16)'; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(225,29,72,0.07)'; }}>
+                          {deletingId === deck.id
+                            ? <span style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid rgba(225,29,72,0.3)', borderTopColor: '#e11d48', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} />
+                            : <Trash2 size={14} />}
                         </button>
                       </div>
 

@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Play, Layers, Tag, ChevronDown,
-  BookOpen, Zap, Star, Clock, LayoutGrid,
+  BookOpen, Zap, Star, Clock, LayoutGrid, Trash2, AlertTriangle,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { Navbar } from '@/components/Navbar';
 import { useSession } from '@/hooks/useSession';
 import { supabase } from '@/lib/supabase/client';
@@ -46,6 +47,23 @@ export default function DeckPage() {
   const [loading, setLoading]   = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter]     = useState('all');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!sessionId || !deck) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/decks?id=${id}&session_id=${sessionId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      toast.success(`"${deck.title}" deleted`);
+      router.push('/dashboard');
+    } catch {
+      toast.error('Could not delete deck. Try again.');
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   useEffect(() => {
     if (!sessionId || !id) return;
@@ -133,7 +151,7 @@ export default function DeckPage() {
             marginBottom: 24,
           }}>
 
-          {/* Title + Study button */}
+          {/* Title + action buttons */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
             <div>
               <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 26, color: '#111118', marginBottom: 4 }}>
@@ -143,9 +161,24 @@ export default function DeckPage() {
                 {deck.card_count} cards{deck.pdf_name ? ` · ${deck.pdf_name}` : ''}
               </p>
             </div>
-            <Link href={`/deck/${id}/practice`} className="btn-primary" style={{ fontSize: 14, padding: '9px 20px', borderRadius: 14, flexShrink: 0 }}>
-              <Play style={{ width: 15, height: 15 }} /> Study Now
-            </Link>
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '9px 16px', borderRadius: 14, fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer', background: 'rgba(225,29,72,0.07)',
+                  border: '1px solid rgba(225,29,72,0.18)', color: '#e11d48',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(225,29,72,0.13)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(225,29,72,0.07)'; }}>
+                <Trash2 style={{ width: 14, height: 14 }} /> Delete
+              </button>
+              <Link href={`/deck/${id}/practice`} className="btn-primary" style={{ fontSize: 14, padding: '9px 20px', borderRadius: 14 }}>
+                <Play style={{ width: 15, height: 15 }} /> Study Now
+              </Link>
+            </div>
           </div>
 
           {/* Mastery bar */}
@@ -292,6 +325,81 @@ export default function DeckPage() {
           )}
         </div>
       </main>
+
+      {/* ── Delete confirmation modal ── */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => !deleting && setShowDeleteModal(false)}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 100,
+                background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)',
+              }}
+            />
+            {/* Dialog */}
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                position: 'fixed', zIndex: 101,
+                top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                width: '90%', maxWidth: 380,
+                background: '#fff', borderRadius: 22,
+                padding: '28px 28px 24px',
+                border: '1px solid rgba(225,29,72,0.15)',
+                boxShadow: '0 24px 64px rgba(0,0,0,0.18)',
+              }}>
+              {/* Warning icon */}
+              <div style={{ width: 52, height: 52, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', background: 'rgba(225,29,72,0.09)', border: '1px solid rgba(225,29,72,0.18)' }}>
+                <AlertTriangle style={{ width: 24, height: 24, color: '#e11d48' }} />
+              </div>
+              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 18, color: '#111118', textAlign: 'center', marginBottom: 8 }}>
+                Delete this deck?
+              </h3>
+              <p style={{ fontSize: 13, color: '#4a4a6a', textAlign: 'center', marginBottom: 24, lineHeight: 1.6 }}>
+                <strong style={{ color: '#111118' }}>&ldquo;{deck.title}&rdquo;</strong> and all{' '}
+                <strong style={{ color: '#111118' }}>{deck.card_count} cards</strong> will be permanently deleted.
+                This cannot be undone.
+              </p>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                  style={{
+                    flex: 1, padding: '11px', borderRadius: 14, fontWeight: 600, fontSize: 14,
+                    cursor: 'pointer', background: '#f5f5f7', border: '1px solid rgba(0,0,0,0.1)', color: '#4a4a6a',
+                  }}>
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  style={{
+                    flex: 1, padding: '11px', borderRadius: 14, fontWeight: 700, fontSize: 14,
+                    cursor: deleting ? 'not-allowed' : 'pointer',
+                    background: deleting ? 'rgba(225,29,72,0.5)' : '#e11d48',
+                    border: 'none', color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                    transition: 'background 0.18s',
+                  }}>
+                  {deleting ? (
+                    <><span style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} /> Deleting…</>
+                  ) : (
+                    <><Trash2 style={{ width: 14, height: 14 }} /> Yes, Delete</>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
