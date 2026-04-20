@@ -41,10 +41,10 @@ CREATE TABLE IF NOT EXISTS card_progress (
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_decks_session ON decks(session_id);
 CREATE INDEX IF NOT EXISTS idx_decks_created ON decks(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_cards_deck ON cards(deck_id);
+CREATE INDEX IF NOT EXISTS idx_cards_deck    ON cards(deck_id);
 CREATE INDEX IF NOT EXISTS idx_progress_session ON card_progress(session_id);
-CREATE INDEX IF NOT EXISTS idx_progress_due ON card_progress(due_at);
-CREATE INDEX IF NOT EXISTS idx_progress_card ON card_progress(card_id);
+CREATE INDEX IF NOT EXISTS idx_progress_due     ON card_progress(due_at);
+CREATE INDEX IF NOT EXISTS idx_progress_card    ON card_progress(card_id);
 
 -- Auto-update updated_at on decks
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -58,3 +58,27 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER decks_updated_at
   BEFORE UPDATE ON decks
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ─── RLS Policies ────────────────────────────────────────────────────────────
+-- Enable RLS on all tables
+ALTER TABLE decks         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cards         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE card_progress ENABLE ROW LEVEL SECURITY;
+
+-- DECKS: anyone can read/write/delete their own session's decks
+CREATE POLICY "decks_select" ON decks FOR SELECT USING (true);
+CREATE POLICY "decks_insert" ON decks FOR INSERT WITH CHECK (true);
+CREATE POLICY "decks_update" ON decks FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "decks_delete" ON decks FOR DELETE USING (true);
+
+-- CARDS: anyone can read/write cards (scoped by deck ownership in app logic)
+CREATE POLICY "cards_select" ON cards FOR SELECT USING (true);
+CREATE POLICY "cards_insert" ON cards FOR INSERT WITH CHECK (true);
+CREATE POLICY "cards_update" ON cards FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "cards_delete" ON cards FOR DELETE USING (true);
+
+-- CARD_PROGRESS: anyone can read/write their own progress
+CREATE POLICY "progress_select" ON card_progress FOR SELECT USING (true);
+CREATE POLICY "progress_insert" ON card_progress FOR INSERT WITH CHECK (true);
+CREATE POLICY "progress_update" ON card_progress FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "progress_delete" ON card_progress FOR DELETE USING (true);

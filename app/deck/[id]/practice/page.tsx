@@ -115,9 +115,8 @@ export default function PracticePage() {
   /* Loading */
   if (sessionState === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#f5f5f7' }}>
-        <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: 'rgba(109,40,217,0.2)', borderTopColor: '#6d28d9' }} />
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f7' }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(109,40,217,0.15)', borderTopColor: '#6d28d9', animation: 'spin 0.8s linear infinite' }} />
       </div>
     );
   }
@@ -125,26 +124,20 @@ export default function PracticePage() {
   /* All done */
   if (sessionState === 'all_done') {
     return (
-      <div className="min-h-screen" style={{ background: '#f5f5f7' }}>
+      <div style={{ minHeight: '100vh', background: '#f5f5f7' }}>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center px-5 sm:px-8">
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 40px' }}>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md w-full glass rounded-3xl p-8 sm:p-10 text-center"
-            style={{ border: '1px solid rgba(5,150,105,0.2)', boxShadow: '0 12px 40px rgba(5,150,105,0.1)' }}>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.2)' }}>
-              <CheckCheck className="w-8 h-8" style={{ color: '#059669' }} />
+            style={{ maxWidth: 420, width: '100%', background: '#fff', borderRadius: 28, padding: '40px 36px', textAlign: 'center', border: '1px solid rgba(5,150,105,0.2)', boxShadow: '0 12px 40px rgba(5,150,105,0.1)' }}>
+            <div style={{ width: 64, height: 64, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.2)' }}>
+              <CheckCheck style={{ width: 32, height: 32, color: '#059669' }} />
             </div>
-            <h2 className="text-2xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#111118' }}>
-              All caught up!
-            </h2>
-            <p className="text-sm mb-7" style={{ color: '#4a4a6a' }}>
-              No cards are due right now. Come back later for your next session.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2 justify-center">
-              <Link href={`/deck/${id}`} className="btn-ghost !text-sm !py-2.5 !px-5 !rounded-xl">View Deck</Link>
-              <Link href="/dashboard" className="btn-primary !text-sm !py-2.5 !px-5 !rounded-xl">
-                Dashboard <ChevronRight className="w-3.5 h-3.5" />
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 22, color: '#111118', marginBottom: 8 }}>All caught up!</h2>
+            <p style={{ fontSize: 14, color: '#4a4a6a', marginBottom: 28 }}>No cards are due right now. Come back later for your next session.</p>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href={`/deck/${id}`} className="btn-ghost" style={{ fontSize: 13, padding: '9px 18px', borderRadius: 12 }}>View Deck</Link>
+              <Link href="/dashboard" className="btn-primary" style={{ fontSize: 13, padding: '9px 18px', borderRadius: 12 }}>
+                Dashboard <ChevronRight style={{ width: 14, height: 14 }} />
               </Link>
             </div>
           </motion.div>
@@ -160,57 +153,48 @@ export default function PracticePage() {
     const emoji = accuracy >= 80 ? '🏆' : accuracy >= 60 ? '👍' : '💪';
 
     return (
-      <div className="min-h-screen" style={{ background: '#f5f5f7' }}>
+      <div style={{ minHeight: '100vh', background: '#f5f5f7' }}>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center px-5 sm:px-8 pt-16">
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 40px' }}>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="max-w-lg w-full glass rounded-3xl p-8 sm:p-10 text-center"
-            style={{ border: '1px solid rgba(109,40,217,0.15)', boxShadow: '0 12px 48px rgba(109,40,217,0.1)' }}>
-            <div className="text-5xl mb-4">{emoji}</div>
-            <h2 className="text-2xl font-black mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: '#111118' }}>
-              Session Complete!
-            </h2>
-            <p className="text-sm mb-7" style={{ color: '#4a4a6a' }}>
-              {deckTitle} · {stats.reviewed} cards reviewed
-            </p>
+            style={{ maxWidth: 480, width: '100%', background: '#fff', borderRadius: 28, padding: '40px 36px', textAlign: 'center', border: '1px solid rgba(109,40,217,0.15)', boxShadow: '0 12px 48px rgba(109,40,217,0.1)' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>{emoji}</div>
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 22, color: '#111118', marginBottom: 4 }}>Session Complete!</h2>
+            <p style={{ fontSize: 14, color: '#4a4a6a', marginBottom: 24 }}>{deckTitle} · {stats.reviewed} cards reviewed</p>
 
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="rounded-2xl p-5"
-                style={{ background: 'rgba(5,150,105,0.07)', border: '1px solid rgba(5,150,105,0.18)' }}>
-                <div className="text-3xl font-black mb-0.5" style={{ color: '#059669' }}>{accuracy}%</div>
-                <div className="text-xs" style={{ color: '#9090aa' }}>Accuracy</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div style={{ borderRadius: 16, padding: '20px 16px', background: 'rgba(5,150,105,0.07)', border: '1px solid rgba(5,150,105,0.18)' }}>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#059669', marginBottom: 2 }}>{accuracy}%</div>
+                <div style={{ fontSize: 12, color: '#9090aa' }}>Accuracy</div>
               </div>
-              <div className="rounded-2xl p-5"
-                style={{ background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.18)' }}>
-                <div className="text-3xl font-black flex items-center justify-center gap-1.5 mb-0.5" style={{ color: '#d97706' }}>
-                  <Flame className="w-6 h-6" />{stats.maxStreak}
+              <div style={{ borderRadius: 16, padding: '20px 16px', background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.18)' }}>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#d97706', marginBottom: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <Flame style={{ width: 24, height: 24 }} />{stats.maxStreak}
                 </div>
-                <div className="text-xs" style={{ color: '#9090aa' }}>Best Streak</div>
+                <div style={{ fontSize: 12, color: '#9090aa' }}>Best Streak</div>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2 mb-7">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 24 }}>
               {[
                 { l: 'Again', v: stats.again, c: '#e11d48' },
                 { l: 'Hard',  v: stats.hard,  c: '#d97706' },
                 { l: 'Good',  v: stats.good,  c: '#2563eb' },
                 { l: 'Easy',  v: stats.easy,  c: '#059669' },
               ].map((s) => (
-                <div key={s.l} className="rounded-xl p-3 text-center"
-                  style={{ background: '#f8f8fc', border: '1px solid rgba(0,0,0,0.07)' }}>
-                  <div className="text-xl font-bold" style={{ color: s.c }}>{s.v}</div>
-                  <div className="text-xs" style={{ color: '#9090aa' }}>{s.l}</div>
+                <div key={s.l} style={{ borderRadius: 12, padding: '12px 8px', textAlign: 'center', background: '#f8f8fc', border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: s.c }}>{s.v}</div>
+                  <div style={{ fontSize: 11, color: '#9090aa' }}>{s.l}</div>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 justify-center flex-wrap">
-              <button
-                onClick={() => { setStats({ reviewed: 0, again: 0, hard: 0, good: 0, easy: 0, streak: 0, maxStreak: 0 }); loadQueue(); }}
-                className="btn-ghost !text-sm !py-2.5 !px-4 !rounded-xl flex items-center gap-2">
-                <RotateCcw className="w-3.5 h-3.5" /> Study Again
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button onClick={() => { setStats({ reviewed: 0, again: 0, hard: 0, good: 0, easy: 0, streak: 0, maxStreak: 0 }); loadQueue(); }}
+                className="btn-ghost" style={{ fontSize: 13, padding: '9px 16px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <RotateCcw style={{ width: 14, height: 14 }} /> Study Again
               </button>
-              <Link href={`/deck/${id}`} className="btn-ghost !text-sm !py-2.5 !px-4 !rounded-xl">View Deck</Link>
-              <Link href="/dashboard" className="btn-primary !text-sm !py-2.5 !px-4 !rounded-xl">Dashboard</Link>
+              <Link href={`/deck/${id}`} className="btn-ghost" style={{ fontSize: 13, padding: '9px 16px', borderRadius: 12 }}>View Deck</Link>
+              <Link href="/dashboard" className="btn-primary" style={{ fontSize: 13, padding: '9px 16px', borderRadius: 12 }}>Dashboard</Link>
             </div>
           </motion.div>
         </div>
@@ -220,10 +204,15 @@ export default function PracticePage() {
 
   /* Studying */
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#f5f5f7' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f5f7' }}>
       <Navbar />
 
-      <main className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-5 sm:px-8 pt-20 pb-8">
+      <main style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        width: '100%', maxWidth: 640,
+        margin: '0 auto',
+        padding: '80px 24px 32px',
+      }}>
 
         {/* Progress header */}
         <div className="mb-6">
@@ -265,10 +254,9 @@ export default function PracticePage() {
               className="w-full max-w-xl">
 
               {/* Type badge */}
-              <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
-                  style={{ background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
-                  <Brain className="w-3 h-3" /> {ts.label}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, padding: '5px 14px', borderRadius: 999, background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
+                  <Brain style={{ width: 12, height: 12 }} /> {ts.label}
                 </span>
                 {card.tags?.slice(0, 2).map((tag) => (
                   <span key={tag} className="tag-pill">{tag}</span>
@@ -276,8 +264,8 @@ export default function PracticePage() {
               </div>
 
               {/* 3D flip card */}
-              <div className="card-scene w-full mb-4"
-                style={{ height: 'clamp(220px, 38vw, 300px)' }}
+              <div className="card-scene w-full"
+                style={{ height: 'clamp(240px, 40vw, 320px)', marginBottom: 24 }}
                 onClick={() => !isFlipped && setIsFlipped(true)}>
                 <div className={`card-inner w-full h-full ${isFlipped ? 'flipped' : ''}`}>
 
@@ -316,7 +304,7 @@ export default function PracticePage() {
                 {isFlipped ? (
                   <motion.div key="ratings"
                     initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    className="grid grid-cols-4 gap-2 sm:gap-3">
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                     {RATINGS.map((r) => (
                       <motion.button key={r.value}
                         onClick={() => handleRate(r.value)}
@@ -324,13 +312,16 @@ export default function PracticePage() {
                         whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                         onMouseEnter={() => setHoveredRating(r.value)}
                         onMouseLeave={() => setHoveredRating(null)}
-                        className="flex flex-col items-center gap-1.5 py-3 sm:py-4 px-1 rounded-xl sm:rounded-2xl font-semibold text-xs sm:text-sm transition-all disabled:opacity-50"
                         style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                          padding: '18px 8px', borderRadius: 18, fontWeight: 600, fontSize: 13,
+                          cursor: 'pointer', transition: 'all 0.18s',
                           background: hoveredRating === r.value ? r.hover : r.bg,
                           border: `1px solid ${r.border}`,
                           color: r.color,
+                          opacity: isSubmitting ? 0.5 : 1,
                         }}>
-                        <span className="text-xl sm:text-2xl">{r.emoji}</span>
+                        <span style={{ fontSize: 28 }}>{r.emoji}</span>
                         <span>{r.label}</span>
                       </motion.button>
                     ))}
@@ -339,8 +330,9 @@ export default function PracticePage() {
                   <motion.button key="show"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     onClick={() => setIsFlipped(true)}
-                    className="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all"
                     style={{
+                      width: '100%', padding: '16px', borderRadius: 18, fontWeight: 600, fontSize: 15,
+                      cursor: 'pointer', transition: 'background 0.18s',
                       background: 'rgba(109,40,217,0.09)',
                       border: '1px solid rgba(109,40,217,0.2)',
                       color: '#6d28d9',
@@ -355,7 +347,7 @@ export default function PracticePage() {
         </div>
 
         {/* Mini stats footer */}
-        <div className="mt-5 flex justify-center gap-5 text-sm">
+        <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center', gap: 24, fontSize: 14 }}>
           {[
             { v: stats.again, c: '#e11d48', e: '😵' },
             { v: stats.hard,  c: '#d97706', e: '😐' },

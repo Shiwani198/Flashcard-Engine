@@ -38,12 +38,17 @@ function Skeleton() {
 export default function DashboardPage() {
   const sessionId = useSession();
   const [decks, setDecks]       = useState<DeckWithStats[]>([]);
+  // Start as true — session loads async, we show skeletons until it's ready
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadDecks = useCallback(async () => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      // Session not yet hydrated from localStorage — keep showing skeletons
+      setLoading(true);
+      return;
+    }
     setLoading(true);
     const { data: rawDecks, error } = await supabase.from('decks').select('*').eq('session_id', sessionId).order('updated_at', { ascending: false });
     if (error || !rawDecks) { setLoading(false); return; }
@@ -63,6 +68,7 @@ export default function DashboardPage() {
     setDecks(decksWithStats);
     setLoading(false);
   }, [sessionId]);
+
 
   useEffect(() => { loadDecks(); }, [loadDecks]);
 
