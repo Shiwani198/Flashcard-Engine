@@ -28,16 +28,13 @@ const MASTERY_CSS: Record<string, string> = {
   new: 'badge-new', learning: 'badge-learning', review: 'badge-review', mastered: 'badge-mastered',
 };
 
-function CardSkeleton() {
-  return (
-    <div className="rounded-xl py-3.5 px-5 flex items-center gap-3"
-      style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)' }}>
-      <div className="skeleton h-4 w-4 rounded-full flex-shrink-0" />
-      <div className="skeleton h-3.5 flex-1 rounded-lg" />
-      <div className="skeleton h-5 w-20 rounded-full" />
-    </div>
-  );
-}
+/* ── Layout wrapper — same centred column as every other page ── */
+const MAIN: React.CSSProperties = {
+  width: '100%',
+  maxWidth: 860,
+  margin: '0 auto',
+  padding: '88px 24px 64px',
+};
 
 export default function DeckPage() {
   const { id } = useParams<{ id: string }>();
@@ -69,15 +66,22 @@ export default function DeckPage() {
     load();
   }, [sessionId, id, router]);
 
+  /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ background: '#f5f5f7' }}>
+      <div style={{ minHeight: '100vh', background: '#f5f5f7' }}>
         <Navbar />
-        <main className="max-w-4xl mx-auto px-5 sm:px-8 pt-24 pb-16 space-y-4">
-          <div className="skeleton h-7 w-56 rounded-xl mb-6" />
-          <div className="skeleton h-40 w-full rounded-2xl" />
-          <div className="space-y-2 mt-6">
-            {Array.from({ length: 5 }).map((_, i) => <CardSkeleton key={i} />)}
+        <main style={MAIN}>
+          <div className="skeleton" style={{ height: 28, width: 220, borderRadius: 12, marginBottom: 24 }} />
+          <div className="skeleton" style={{ height: 160, width: '100%', borderRadius: 20, marginBottom: 16 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, padding: '14px 20px', background: '#fff', borderRadius: 14, border: '1px solid rgba(0,0,0,0.07)', alignItems: 'center' }}>
+                <div className="skeleton" style={{ width: 16, height: 16, borderRadius: '50%', flexShrink: 0 }} />
+                <div className="skeleton" style={{ height: 14, flex: 1, borderRadius: 8 }} />
+                <div className="skeleton" style={{ height: 22, width: 72, borderRadius: 999 }} />
+              </div>
+            ))}
           </div>
         </main>
       </div>
@@ -106,61 +110,67 @@ export default function DeckPage() {
     : cards.filter((c) => (c.progress ? getMasteryLabel(c.progress.interval_days) : 'new') === filter);
 
   return (
-    <div className="min-h-screen" style={{ background: '#f5f5f7' }}>
+    <div style={{ minHeight: '100vh', background: '#f5f5f7' }}>
       <Navbar />
-      <main className="max-w-4xl mx-auto px-5 sm:px-8 pt-24 pb-16">
+      <main style={MAIN}>
 
-        <Link href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm mb-6 transition-colors"
-          style={{ color: '#9090aa' }}
+        {/* Back link */}
+        <Link href="/dashboard" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          fontSize: 13, color: '#9090aa', textDecoration: 'none',
+          marginBottom: 20, transition: 'color 0.18s',
+        }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#111118'; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#9090aa'; }}>
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft style={{ width: 15, height: 15 }} /> Back to Dashboard
         </Link>
 
-        {/* Deck header */}
+        {/* ── Deck header card ── */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 mb-6">
-          <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+          style={{
+            background: '#fff', borderRadius: 22, padding: '28px 28px 24px',
+            border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
+            marginBottom: 24,
+          }}>
+
+          {/* Title + Study button */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black mb-1"
-                style={{ fontFamily: 'Outfit, sans-serif', color: '#111118' }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 26, color: '#111118', marginBottom: 4 }}>
                 {deck.title}
               </h1>
-              <p className="text-sm" style={{ color: '#9090aa' }}>
+              <p style={{ fontSize: 13, color: '#9090aa' }}>
                 {deck.card_count} cards{deck.pdf_name ? ` · ${deck.pdf_name}` : ''}
               </p>
             </div>
-            <Link href={`/deck/${id}/practice`} className="btn-primary !text-sm !py-2.5 !px-5 !rounded-xl flex-shrink-0">
-              <Play className="w-4 h-4" /> Study Now
+            <Link href={`/deck/${id}/practice`} className="btn-primary" style={{ fontSize: 14, padding: '9px 20px', borderRadius: 14, flexShrink: 0 }}>
+              <Play style={{ width: 15, height: 15 }} /> Study Now
             </Link>
           </div>
 
-          {/* mastery bar */}
-          <div className="mb-5">
-            <div className="flex justify-between text-xs mb-2">
+          {/* Mastery bar */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 7 }}>
               <span style={{ color: '#9090aa' }}>Overall Mastery</span>
-              <span className="font-bold" style={{ color: '#059669' }}>{masteryPct}%</span>
+              <span style={{ fontWeight: 700, color: '#059669' }}>{masteryPct}%</span>
             </div>
-            <div className="h-2 rounded-full overflow-hidden flex gap-px" style={{ background: 'rgba(0,0,0,0.07)' }}>
+            <div style={{ height: 8, borderRadius: 999, overflow: 'hidden', background: 'rgba(0,0,0,0.07)', display: 'flex', gap: 2 }}>
               {[
                 { w: stats.new,      color: '#94a3b8' },
                 { w: stats.learning, color: '#f59e0b' },
                 { w: stats.review,   color: '#3b82f6' },
                 { w: stats.mastered, color: '#10b981' },
               ].map((seg, i) => (
-                <motion.div key={i} className="h-full rounded-sm"
-                  initial={{ width: 0 }}
-                  animate={{ width: deck.card_count > 0 ? `${(seg.w / deck.card_count) * 100}%` : '0%' }}
+                <motion.div key={i}
+                  initial={{ width: 0 }} animate={{ width: deck.card_count > 0 ? `${(seg.w / deck.card_count) * 100}%` : '0%' }}
                   transition={{ delay: 0.2 + i * 0.08, duration: 0.6 }}
-                  style={{ background: seg.color, minWidth: seg.w > 0 ? '4px' : '0' }}
-                />
+                  style={{ height: '100%', borderRadius: 4, background: seg.color, minWidth: seg.w > 0 ? 4 : 0 }} />
               ))}
             </div>
           </div>
 
-          {/* badges */}
-          <div className="flex flex-wrap gap-2">
+          {/* Status badges */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {[
               { label: 'New',      value: stats.new,      icon: Layers, css: 'badge-new' },
               { label: 'Learning', value: stats.learning, icon: Zap,    css: 'badge-learning' },
@@ -168,41 +178,45 @@ export default function DeckPage() {
               { label: 'Mastered', value: stats.mastered, icon: Star,   css: 'badge-mastered' },
             ].map((s) => (
               <span key={s.label} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${s.css}`}>
-                <s.icon className="w-3.5 h-3.5" /> {s.value} {s.label}
+                <s.icon style={{ width: 13, height: 13 }} /> {s.value} {s.label}
               </span>
             ))}
             {stats.due > 0 && (
-              <Link href={`/deck/${id}/practice`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
-                style={{ background: 'rgba(109,40,217,0.09)', color: '#6d28d9', border: '1px solid rgba(109,40,217,0.18)' }}>
-                <Play className="w-3 h-3" /> {stats.due} due now
+              <Link href={`/deck/${id}/practice`} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                background: 'rgba(109,40,217,0.09)', color: '#6d28d9', border: '1px solid rgba(109,40,217,0.18)',
+                textDecoration: 'none',
+              }}>
+                <Play style={{ width: 11, height: 11 }} /> {stats.due} due now
               </Link>
             )}
           </div>
         </motion.div>
 
-        {/* Card list header */}
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h2 className="text-base font-bold flex items-center gap-2" style={{ color: '#111118' }}>
-            <BookOpen className="w-4 h-4" style={{ color: '#6d28d9' }} />
+        {/* ── Card list header ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 12 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 15, color: '#111118', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BookOpen style={{ width: 15, height: 15, color: '#6d28d9' }} />
             All Cards ({cards.length})
           </h2>
-          <div className="flex items-center gap-1 flex-wrap">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             {FILTERS.map((f) => (
-              <button key={f.key} onClick={() => setFilter(f.key)}
-                className="text-xs font-semibold px-3 py-1.5 rounded-xl transition-all"
-                style={{
-                  background: filter === f.key ? 'rgba(109,40,217,0.1)' : '#fff',
-                  color: filter === f.key ? '#6d28d9' : '#4a4a6a',
-                  border: filter === f.key ? '1px solid rgba(109,40,217,0.2)' : '1px solid rgba(0,0,0,0.08)',
-                }}>
+              <button key={f.key} onClick={() => setFilter(f.key)} style={{
+                fontSize: 12, fontWeight: 600, padding: '6px 13px', borderRadius: 12, cursor: 'pointer',
+                background: filter === f.key ? 'rgba(109,40,217,0.1)' : '#fff',
+                color:      filter === f.key ? '#6d28d9' : '#4a4a6a',
+                border:     filter === f.key ? '1px solid rgba(109,40,217,0.2)' : '1px solid rgba(0,0,0,0.08)',
+                transition: 'all 0.15s',
+              }}>
                 {f.label}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="space-y-2">
+        {/* ── Card list ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <AnimatePresence>
             {filteredCards.map((card, i) => {
               const mastery = card.progress ? getMasteryLabel(card.progress.interval_days) : 'new';
@@ -211,24 +225,25 @@ export default function DeckPage() {
 
               return (
                 <motion.div key={card.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                   transition={{ delay: Math.min(i * 0.025, 0.25) }}
-                  className="rounded-xl overflow-hidden"
-                  style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.07)', boxShadow: 'var(--shadow-sm)' }}>
+                  style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
 
                   <button onClick={() => setExpanded(isOpen ? null : card.id)}
-                    className="w-full flex items-center gap-3 px-4 sm:px-5 py-3.5 text-left transition-colors"
-                    style={{ background: isOpen ? '#fafaff' : undefined }}>
-                    <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                      style={{ color: '#9090aa' }} />
-                    <span className="flex-1 text-sm font-medium line-clamp-1" style={{ color: '#111118' }}>
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '14px 18px', textAlign: 'left', cursor: 'pointer',
+                      background: isOpen ? '#fafaff' : '#fff', border: 'none', transition: 'background 0.15s',
+                    }}>
+                    <ChevronDown style={{
+                      width: 15, height: 15, flexShrink: 0, color: '#9090aa',
+                      transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s',
+                    }} />
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: '#111118', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {card.front}
                     </span>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className={`hidden sm:inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium`}
-                        style={{ background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 999, fontWeight: 600, background: ts.bg, color: ts.color, border: `1px solid ${ts.border}` }}>
                         {ts.label}
                       </span>
                       <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${MASTERY_CSS[mastery]}`}>
@@ -240,25 +255,23 @@ export default function DeckPage() {
                   <AnimatePresence>
                     {isOpen && (
                       <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden">
-                        <div className="px-5 pb-5 pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-                          <div className="grid sm:grid-cols-2 gap-5">
+                        initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }}
+                        style={{ overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 20px 20px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
                             <div>
-                              <p className="section-label mb-2">Question</p>
-                              <p className="text-sm leading-relaxed" style={{ color: '#111118' }}>{card.front}</p>
+                              <p className="section-label" style={{ marginBottom: 8 }}>Question</p>
+                              <p style={{ fontSize: 13, lineHeight: 1.65, color: '#111118' }}>{card.front}</p>
                             </div>
                             <div>
-                              <p className="section-label mb-2">Answer</p>
-                              <p className="text-sm leading-relaxed" style={{ color: '#4a4a6a' }}>{card.back}</p>
+                              <p className="section-label" style={{ marginBottom: 8 }}>Answer</p>
+                              <p style={{ fontSize: 13, lineHeight: 1.65, color: '#4a4a6a' }}>{card.back}</p>
                             </div>
                           </div>
                           {card.tags?.length > 0 && (
-                            <div className="flex items-center gap-1.5 mt-4 flex-wrap">
-                              <Tag className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#9090aa' }} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
+                              <Tag style={{ width: 13, height: 13, color: '#9090aa', flexShrink: 0 }} />
                               {card.tags.map((t) => <span key={t} className="tag-pill">{t}</span>)}
                             </div>
                           )}
@@ -272,9 +285,9 @@ export default function DeckPage() {
           </AnimatePresence>
 
           {filteredCards.length === 0 && (
-            <div className="text-center py-16" style={{ color: '#9090aa' }}>
-              <LayoutGrid className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No cards in this category yet.</p>
+            <div style={{ textAlign: 'center', padding: '64px 0', color: '#9090aa' }}>
+              <LayoutGrid style={{ width: 40, height: 40, margin: '0 auto 12px', opacity: 0.3 }} />
+              <p style={{ fontSize: 14 }}>No cards in this category yet.</p>
             </div>
           )}
         </div>
