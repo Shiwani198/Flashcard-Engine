@@ -109,16 +109,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Generate cards error:', error);
-
-    // Friendly message for daily token limit
-    const msg = (error as Error)?.message || '';
-    if (msg.startsWith('DAILY_LIMIT:')) {
-      return NextResponse.json(
-        { error: msg.replace('DAILY_LIMIT: ', '') },
-        { status: 429 }
-      );
-    }
-
     return NextResponse.json(
       { error: 'An unexpected error occurred' },
       { status: 500 }
