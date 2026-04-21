@@ -16,12 +16,14 @@ interface GroqCardsResponse {
 }
 
 // ── Groq free tier limits ──────────────────────────────────────────────────
-// TPM limit: 12,000 tokens/min on the free tier.
-// Prompt header ≈ 350 tokens, response max 2,000 tokens → safe content budget ≈ 5,500 tokens.
-// 1 token ≈ 4 chars → max chunk ≈ 22,000 chars of content.
-// We also cap the total text at MAX_TOTAL_CHARS before chunking.
-const MAX_CHUNK_TOKENS  = 5500;   // content tokens per single API call
-const MAX_TOTAL_CHARS   = 60_000; // hard cap on total text fed to the model (~15k tokens)
+// llama-3.3-70b-versatile : 100k TPD,  12k TPM  (too low for heavy use)
+// llama-3.1-8b-instant    : 500k TPD,  20k TPM  ← we use this
+// Content budget: 20k TPM - 350 (prompt) - 2000 (response) ≈ 17,600 safe tokens per call
+// 1 token ≈ 4 chars → max chunk ≈ 24,000 chars
+const GENERATION_MODEL  = 'llama-3.1-8b-instant';
+const DEDUP_MODEL       = 'llama-3.1-8b-instant';
+const MAX_CHUNK_TOKENS  = 6000;    // content tokens per single API call
+const MAX_TOTAL_CHARS   = 60_000;  // hard cap on total text fed to the model
 
 const GENERATION_PROMPT = `You are an expert teacher creating flashcards for deep learning and long-term retention.
 
@@ -110,7 +112,7 @@ async function generateCardsFromChunk(
 ): Promise<GeneratedCard[]> {
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: GENERATION_MODEL,
       messages: [{ role: 'user', content: GENERATION_PROMPT + textChunk }],
       temperature: 0.7,
       max_tokens: 2000,
@@ -133,6 +135,16 @@ async function generateCardsFromChunk(
     if ((status === 429 || status === 413) && attempt < 4) {
       // Parse retry-after header if available, else use exponential backoff
       const retryAfter = (err as { headers?: Record<string, string> })?.headers?.['retry-after'];
+
+      // If retry-after is very long (daily limit), surface a readable error immediately
+      if (retryAfter && parseInt(retryAfter) > 300) {
+        const mins = Math.ceil(parseInt(retryAfter) / 60);
+        const hrs  = Math.floor(mins / 60);
+        const rem  = mins % 60;
+        const timeStr = hrs > 0 ? `${hrs}h ${rem}m` : `${mins}m`;
+        throw new Error(`DAILY_LIMIT: Groq daily token limit reached. Resets in ${timeStr}. Try again later.`);
+      }
+
       const waitMs = retryAfter
         ? parseInt(retryAfter) * 1000 + 500
         : Math.min(2 ** attempt * 3000, 30000); // 3s, 6s, 12s, 24s
@@ -152,7 +164,7 @@ async function deduplicateCards(cards: GeneratedCard[]): Promise<GeneratedCard[]
   if (cards.length <= 5) return cards;
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: DEDUP_MODEL,
       messages: [{ role: 'user', content: DEDUP_PROMPT + JSON.stringify({ cards }) }],
       temperature: 0.3,
       max_tokens: 4000,
