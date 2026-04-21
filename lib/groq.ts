@@ -16,14 +16,13 @@ interface GroqCardsResponse {
 }
 
 // ── Groq free tier limits ──────────────────────────────────────────────────
-// llama-3.3-70b-versatile : 100k TPD,  12k TPM  (too low for heavy use)
-// llama-3.1-8b-instant    : 500k TPD,  20k TPM  ← we use this
-// Content budget: 20k TPM - 350 (prompt) - 2000 (response) ≈ 17,600 safe tokens per call
-// 1 token ≈ 4 chars → max chunk ≈ 24,000 chars
+// llama-3.1-8b-instant: 6,000 TPM (input + max_tokens counts together), 500k TPD
+// Budget per call: 6000 - 1500 (max_tokens) - 350 (prompt) = 4,150 content tokens
+// 1 token ≈ 4 chars → max chunk ≈ 14,000 chars of content
 const GENERATION_MODEL  = 'llama-3.1-8b-instant';
 const DEDUP_MODEL       = 'llama-3.1-8b-instant';
-const MAX_CHUNK_TOKENS  = 6000;    // content tokens per single API call
-const MAX_TOTAL_CHARS   = 60_000;  // hard cap on total text fed to the model
+const MAX_CHUNK_TOKENS  = 3500;    // content tokens per call (safe under 6k TPM)
+const MAX_TOTAL_CHARS   = 60_000;  // hard cap on total text before chunking
 
 const GENERATION_PROMPT = `You are an expert teacher creating flashcards for deep learning and long-term retention.
 
@@ -115,7 +114,7 @@ async function generateCardsFromChunk(
       model: GENERATION_MODEL,
       messages: [{ role: 'user', content: GENERATION_PROMPT + textChunk }],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 1500,
       response_format: { type: 'json_object' },
     });
 
